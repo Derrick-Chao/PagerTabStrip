@@ -77,7 +77,7 @@ public class ButtonBarViewSettings {
     }
 }
 
-class ButtonBarView: UICollectionView {
+public class ButtonBarView: UICollectionView {
     // MARK:- Outlets
     
     // MARK:- Public property
@@ -85,13 +85,13 @@ class ButtonBarView: UICollectionView {
     // MARK:- Private property
     
     // MARK:- Initialization
-    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+    public override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
         
         initView()
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         super.init(coder: coder)
         
         initView()
@@ -106,6 +106,9 @@ class ButtonBarView: UICollectionView {
     }
     
     // MARK:- Public methods
+    public override func setCollectionViewLayout(_ layout: UICollectionViewLayout, animated: Bool) {
+        super.setCollectionViewLayout(layout, animated: animated)
+    }
     
     // MARK:- Private methods
     

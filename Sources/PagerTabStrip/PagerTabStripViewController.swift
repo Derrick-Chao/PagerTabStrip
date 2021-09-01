@@ -20,6 +20,8 @@ public protocol PagerTabStripDataSource: AnyObject {
 open class PagerTabStripViewController: UIViewController {
     // MARK:- Outlets
     @IBOutlet public weak var containerView: UIScrollView!
+    @IBOutlet public weak var buttonBarView: ButtonBarView!
+    @IBOutlet public weak var buttonBarHeightAnchor: NSLayoutConstraint!
     
     // MARK:- Public property
     open weak var dataSource: PagerTabStripDataSource?
@@ -36,20 +38,26 @@ open class PagerTabStripViewController: UIViewController {
     public private(set) var currentIndex = 0
     
     // MARK:- Private property
-    private lazy var buttonBarView: ButtonBarView = {
-        let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.scrollDirection = .horizontal
-//        flowLayout.minimumLineSpacing = 20.0
-        flowLayout.minimumInteritemSpacing = settings.barInteritemSpacing
-        flowLayout.sectionInset = UIEdgeInsets(top: 0.0, left: settings.barLeftRightInset, bottom: 0.0, right: settings.barLeftRightInset)
-        let buttonBarView = ButtonBarView(frame: .zero, collectionViewLayout: flowLayout)
-        buttonBarView.backgroundColor = settings.buttonBarBackgroundColor
-        return buttonBarView
-    }()
+//    private lazy var buttonBarView: ButtonBarView = {
+//        let flowLayout = UICollectionViewFlowLayout()
+//        flowLayout.scrollDirection = .horizontal
+////        flowLayout.minimumLineSpacing = 20.0
+//        flowLayout.minimumInteritemSpacing = settings.barInteritemSpacing
+//        flowLayout.sectionInset = UIEdgeInsets(top: 0.0, left: settings.barLeftRightInset, bottom: 0.0, right: settings.barLeftRightInset)
+//        let buttonBarView = ButtonBarView(frame: .zero, collectionViewLayout: flowLayout)
+//        buttonBarView.backgroundColor = settings.buttonBarBackgroundColor
+//        return buttonBarView
+//    }()
     private var cellWidths: [CGFloat] = []
     private var lastContentOffsetX: CGFloat = 0.0
     private var lastSize: CGSize = .zero
-    private var buttonBarHeightAnchor: NSLayoutConstraint?
+    private lazy var flowLayout: UICollectionViewFlowLayout = {
+        let flowLayout = UICollectionViewFlowLayout()
+        flowLayout.scrollDirection = .horizontal
+        flowLayout.minimumInteritemSpacing = settings.barInteritemSpacing
+        flowLayout.sectionInset = UIEdgeInsets(top: 0.0, left: settings.barLeftRightInset, bottom: 0.0, right: settings.barLeftRightInset)
+        return flowLayout
+    }()
     
     // MARK:- Life cycle
     override open func viewDidLoad() {
@@ -116,24 +124,33 @@ open class PagerTabStripViewController: UIViewController {
     // MARK:- Layouts
     private func configureButtonBarView() {
         
+        let barView = buttonBarView ?? {
+            
+            let buttonBarView = ButtonBarView(frame: .zero, collectionViewLayout: flowLayout)
+            buttonBarView.backgroundColor = settings.buttonBarBackgroundColor
+            buttonBarView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(buttonBarView)
+            let topAnchor: NSLayoutYAxisAnchor
+            if #available(iOS 11.0, *) {
+                topAnchor = view.safeAreaLayoutGuide.topAnchor
+            } else {
+                topAnchor = view.topAnchor
+            }
+            let heightAnchor = buttonBarView.heightAnchor.constraint(equalToConstant: settings.viewHeight)
+            NSLayoutConstraint.activate([
+                buttonBarView.topAnchor.constraint(equalTo: topAnchor),
+                buttonBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                buttonBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                heightAnchor
+            ])
+            buttonBarHeightAnchor = heightAnchor
+            return buttonBarView
+        }()
+        
+        buttonBarView = barView
+        buttonBarView.setCollectionViewLayout(flowLayout, animated: false)
         buttonBarView.dataSource = self
         buttonBarView.delegate = self
-        buttonBarView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(buttonBarView)
-        let topAnchor: NSLayoutYAxisAnchor
-        if #available(iOS 11.0, *) {
-            topAnchor = view.safeAreaLayoutGuide.topAnchor
-        } else {
-            topAnchor = view.topAnchor
-        }
-        let heightAnchor = buttonBarView.heightAnchor.constraint(equalToConstant: settings.viewHeight)
-        NSLayoutConstraint.activate([
-            buttonBarView.topAnchor.constraint(equalTo: topAnchor),
-            buttonBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            buttonBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            heightAnchor
-        ])
-        buttonBarHeightAnchor = heightAnchor
     }
     
     private func configureContainerView() {
