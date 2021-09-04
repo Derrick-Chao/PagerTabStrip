@@ -34,6 +34,12 @@ open class PagerTabStripViewController: UIViewController {
         }
     }
     
+    open var isScrollEnabled: Bool = true {
+        didSet {
+            containerView.isScrollEnabled = isScrollEnabled
+        }
+    }
+    
     public private(set) var viewControllers = [UIViewController]()
     public private(set) var currentIndex = 0
     
