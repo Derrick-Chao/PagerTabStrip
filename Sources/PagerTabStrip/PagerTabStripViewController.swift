@@ -17,6 +17,10 @@ public protocol PagerTabStripDataSource: AnyObject {
     func viewControllers(for pagerTabStripViewController: PagerTabStripViewController) -> [PagerTabStripView]
 }
 
+@objc public protocol PagerTabStripDelegate: AnyObject {
+    @objc optional func pagerTabStripViewController(_ viewController: PagerTabStripViewController, didMoveTo index: Int)
+}
+
 open class PagerTabStripViewController: UIViewController {
     // MARK:- Outlets
     @IBOutlet public weak var containerView: UIScrollView!
@@ -25,6 +29,7 @@ open class PagerTabStripViewController: UIViewController {
     
     // MARK:- Public property
     open weak var dataSource: PagerTabStripDataSource?
+    open weak var delegate: PagerTabStripDelegate?
     open var pageWidth: CGFloat {
         return containerView.bounds.width
     }
@@ -385,6 +390,7 @@ extension PagerTabStripViewController: UIScrollViewDelegate {
             buttonBarView.performBatchUpdates {
                 self.buttonBarView.scrollToItem(at: IndexPath(item: self.currentIndex, section: 0), at: .centeredHorizontally, animated: true)
             } completion: { _ in }
+            delegate?.pagerTabStripViewController?(self, didMoveTo: currentIndex)
         }
     }
     
@@ -393,6 +399,7 @@ extension PagerTabStripViewController: UIScrollViewDelegate {
             
             (navigationController?.view ?? view)?.isUserInteractionEnabled = true
             updateContent()
+            delegate?.pagerTabStripViewController?(self, didMoveTo: currentIndex)
         }
     }
 }
