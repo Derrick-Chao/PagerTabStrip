@@ -138,7 +138,6 @@ open class PagerTabStripViewController: UIViewController {
         let barView = buttonBarView ?? {
             
             let buttonBarView = ButtonBarView(frame: .zero, collectionViewLayout: flowLayout)
-            buttonBarView.backgroundColor = settings.buttonBarBackgroundColor
             buttonBarView.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(buttonBarView)
             let topAnchor: NSLayoutYAxisAnchor
@@ -158,6 +157,7 @@ open class PagerTabStripViewController: UIViewController {
             return buttonBarView
         }()
         
+        barView.backgroundColor = settings.buttonBarBackgroundColor
         buttonBarView = barView
         buttonBarView.setCollectionViewLayout(flowLayout, animated: false)
         buttonBarView.dataSource = self
